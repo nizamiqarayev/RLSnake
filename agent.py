@@ -24,7 +24,6 @@ class Agent:
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
     def get_state(self, game):
-        print(game.heads[self.index].x)
 
         head = game.heads[self.index]
         point_l = Point(head.x - 20, head.y)
@@ -32,10 +31,10 @@ class Agent:
         point_u = Point(head.x, head.y - 20)
         point_d = Point(head.x, head.y + 20)
 
-        dir_l = game.direction == Direction.LEFT
-        dir_r = game.direction == Direction.RIGHT
-        dir_u = game.direction == Direction.UP
-        dir_d = game.direction == Direction.DOWN
+        dir_l = game.direction[self.index] == Direction.LEFT
+        dir_r = game.direction[self.index] == Direction.RIGHT
+        dir_u = game.direction[self.index] == Direction.UP
+        dir_d = game.direction[self.index] == Direction.DOWN
 
         state = [
             # Danger straight
@@ -61,13 +60,20 @@ class Agent:
             dir_r,
             dir_u,
             dir_d,
-
+            
             # Food location
-            game.food.x < head.x,  # food left
-            game.food.x > head.x,  # food right
-            game.food.y < head.y,  # food up
-            game.food.y > head.y  # food down
+            game.food.x < head.x if game.boxCollected[0]==False else  game.boxSlots[0][0].x < head.x,  # food left
+            game.food.x > head.x if game.boxCollected[0]==False else  game.boxSlots[0][0].x > head.x,  # food right
+            game.food.y < head.y if game.boxCollected[0]==False else  game.boxSlots[0][0].y < head.y,  # food up
+            game.food.y > head.y if game.boxCollected[0]==False else  game.boxSlots[0][0].y > head.y,  # food down
+            
         ]
+        if game.boxCollected[0]:
+            print("++++++++++")
+            print(state)
+            print("++++++++++")
+
+
 
         return np.array(state, dtype=int)
 
@@ -158,16 +164,24 @@ def train():
 
 
 
-        if done1:
+        if done1 or done2:
             # train long memory, plot result
             game.reset()
             agent1.n_games += 1
             agent1.train_long_memory()
+            
+            agent2.n_games += 1
+            agent2.train_long_memory()
 
             if score1 > record1:
                 record1 = score1
                 agent1.model.save()
-
+                
+            if score2 > record2:
+                record2 = score2
+                agent2.model.save()
+            print("==================")
+            print('Game', agent1.n_games, 'Score', score1, 'Record:', record1)
             print('Game', agent1.n_games, 'Score', score1, 'Record:', record1)
 
             plot_scores1.append(score1)
@@ -176,23 +190,33 @@ def train():
             plot_mean_scores1.append(mean_score1)
             plot(plot_scores1, plot_mean_scores1)
             
-        if done2:
-            # train long memory, plot result
-            game.reset()
-            agent2.n_games += 1
-            agent2.train_long_memory()
-
-            if score2 > record2:
-                record2 = score2
-                agent2.model.save()
-
-            print('Game', agent2.n_games, 'Score', score2, 'Record:', record2)
-
+            
+            
             plot_scores2.append(score1)
             total_score2 += score2
             mean_score2 = total_score2 / agent2.n_games
             plot_mean_scores2.append(mean_score2)
             plot(plot_scores2, plot_mean_scores2)
+            
+            
+            
+        # if done2:
+        #     # train long memory, plot result
+        #     game.reset()
+        #     agent2.n_games += 1
+        #     agent2.train_long_memory()
+
+        #     if score2 > record2:
+        #         record2 = score2
+        #         agent2.model.save()
+
+        #     print('Game', agent2.n_games, 'Score', score2, 'Record:', record2)
+
+        #     plot_scores2.append(score1)
+        #     total_score2 += score2
+        #     mean_score2 = total_score2 / agent2.n_games
+        #     plot_mean_scores2.append(mean_score2)
+        #     plot(plot_scores2, plot_mean_scores2)
 
 
 if __name__ == '__main__':

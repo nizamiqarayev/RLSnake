@@ -152,17 +152,17 @@ class SnakeGameAI:
         if(self.boxCollected[0]):
                 currentDistance=self.calculate_distance(self.heads[whichAgent].x,self.heads[whichAgent].y,self.boxSlots[self.nextEmptyBoxSlotIndex][0].x,self.boxSlots[self.nextEmptyBoxSlotIndex][0].y) 
                 if currentDistance<self.distanceOfAgents[whichAgent]:
-                    reward+=1
+                    reward=1
                     self.distanceOfAgents[whichAgent]=currentDistance
                 else:
-                    reward-=1
+                    reward=-1
         else:
                 currentDistance=self.calculate_distance(self.heads[whichAgent].x,self.heads[whichAgent].y,self.food.x,self.food.y) 
                 if currentDistance<self.distanceOfAgents[whichAgent]:
-                    reward+=1
+                    reward=1
                     self.distanceOfAgents[whichAgent]=currentDistance
                 else:
-                    reward-=1
+                    reward=-1
         
         # update the head
         # 3. check if game over
@@ -172,7 +172,7 @@ class SnakeGameAI:
 # or self.frame_iteration > 100*len(self.heads)
              if self.is_collision(i):
                  game_over=True
-                 reward -= 10
+                 reward = -10
                  return reward, game_over, self.score
 
         # 4. place new food or just move
@@ -180,7 +180,7 @@ class SnakeGameAI:
             
                 self.boxCollected[0]=True
                 self.boxCollected[1]=index
-                reward+=5
+                reward=5
                 self.score += 1
 
             
@@ -190,7 +190,7 @@ class SnakeGameAI:
                  if(i==boxSlotLocation[0] and self.boxCollected[0]==True and self.boxCollected[1]==index and boxSlotLocation[1]==False):
                      boxSlotLocation[1]=True
                      self.score += 5
-                     reward += 10
+                     reward= 10
                      self.boxCollected[0]=False
                      self.boxCollected[1]=None
                  

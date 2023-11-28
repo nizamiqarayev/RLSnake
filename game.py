@@ -59,6 +59,7 @@ class SnakeGameAI:
         self.direction = [Direction.RIGHT,Direction.RIGHT]
         self.distanceOfAgents=[]
 
+        self.failed_move_counter=0
 
         self.heads = []
         for i in self.agents:
@@ -149,6 +150,7 @@ class SnakeGameAI:
         game_over = False
         
         
+        
         if(self.boxCollected[0]):
                 currentDistance=self.calculate_distance(self.heads[whichAgent].x,self.heads[whichAgent].y,self.boxSlots[self.nextEmptyBoxSlotIndex][0].x,self.boxSlots[self.nextEmptyBoxSlotIndex][0].y) 
                 if currentDistance<self.distanceOfAgents[whichAgent]:
@@ -156,6 +158,10 @@ class SnakeGameAI:
                     self.distanceOfAgents[whichAgent]=currentDistance
                 else:
                     reward=-1
+                    self.failed_move_counter+=1
+                    print(self.failed_move_counter)
+                    if(self.failed_move_counter>300):
+                        game_over=True
         else:
                 currentDistance=self.calculate_distance(self.heads[whichAgent].x,self.heads[whichAgent].y,self.food.x,self.food.y) 
                 if currentDistance<self.distanceOfAgents[whichAgent]:
@@ -163,6 +169,12 @@ class SnakeGameAI:
                     self.distanceOfAgents[whichAgent]=currentDistance
                 else:
                     reward=-1
+                    self.failed_move_counter+=1
+                    print(self.failed_move_counter)
+
+                    if(self.failed_move_counter>300):
+                        game_over=True
+
         
         # update the head
         # 3. check if game over
@@ -177,7 +189,8 @@ class SnakeGameAI:
 
         # 4. place new food or just move
              if i == self.food:
-            
+                self.failed_move_counter=0
+
                 self.boxCollected[0]=True
                 self.boxCollected[1]=index
                 reward=5
@@ -188,6 +201,8 @@ class SnakeGameAI:
                 
              for boxSlotLocation in self.boxSlots:
                  if(i==boxSlotLocation[0] and self.boxCollected[0]==True and self.boxCollected[1]==index and boxSlotLocation[1]==False):
+                     self.failed_move_counter=0
+
                      boxSlotLocation[1]=True
                      self.score += 5
                      reward= 10

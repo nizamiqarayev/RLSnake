@@ -68,13 +68,7 @@ class Agent:
             game.food.y > head.y if game.boxCollected[0]==False else  game.boxSlots[0][0].y > head.y,  # food down
             
         ]
-        if game.boxCollected[0]:
-            print("++++++++++")
-            print(state)
-            print("++++++++++")
-
-
-
+        
         return np.array(state, dtype=int)
 
     def remember(self, state, action, reward, next_state, done):

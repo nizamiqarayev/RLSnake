@@ -62,10 +62,10 @@ class Agent:
             dir_d,
             
             # Food location
-            game.food.x < head.x if game.boxCollected[0]==False else  game.boxSlots[0][0].x < head.x,  # food left
-            game.food.x > head.x if game.boxCollected[0]==False else  game.boxSlots[0][0].x > head.x,  # food right
-            game.food.y < head.y if game.boxCollected[0]==False else  game.boxSlots[0][0].y < head.y,  # food up
-            game.food.y > head.y if game.boxCollected[0]==False else  game.boxSlots[0][0].y > head.y,  # food down
+            game.food.x < head.x if game.boxCollected[0]==False else  game.boxSlots[31][0].x < head.x,  # food left
+            game.food.x > head.x if game.boxCollected[0]==False else  game.boxSlots[31][0].x > head.x,  # food right
+            game.food.y < head.y if game.boxCollected[0]==False else  game.boxSlots[31][0].y < head.y,  # food up
+            game.food.y > head.y if game.boxCollected[0]==False else  game.boxSlots[31][0].y > head.y,  # food down
             
         ]
         

@@ -27,14 +27,38 @@ RED = (200, 0, 0)
 BLUE1 = (0, 0, 255)
 BLUE2 = (0, 100, 255)
 BLACK = (0, 0, 0)
+ORANGE=(255,165,0)
 
 BLOCK_SIZE = 20
 SPEED = 40
 
 
+
+
+obstaclesCoordinateArray=[Point(260, 240), Point(240, 240), Point(220, 240), Point(200, 240), Point(180, 240),Point(80, 240), Point(60, 240), Point(40, 240), Point(20, 240), Point(0, 240),
+ Point(260, 260), Point(440, 260), Point(440, 240), Point(460, 240), Point(480, 240),
+ Point(500, 240), Point(520, 240), Point(620, 240), Point(640, 240), Point(660, 240),
+ Point(680, 240), Point(700, 240), Point(260, 380), Point(240, 380), Point(220, 380),
+ Point(200, 380), Point(180, 380), Point(80, 380), Point(60, 380), Point(40, 380),
+ Point(20, 380), Point(0, 380), Point(440, 380), Point(460, 380), Point(480, 380),
+ Point(500, 380), Point(520, 380), Point(620, 380), Point(640, 380), Point(660, 380),
+ Point(680, 380), Point(700, 380), Point(260, 400), Point(260, 420), Point(260, 440),
+ Point(260, 460), Point(260, 600), Point(260, 620), Point(260, 640), Point(260, 660),
+ Point(260, 680), Point(260, 700), Point(440, 400), Point(440, 420), Point(440, 440),
+ Point(440, 460), Point(440, 600), Point(440, 620), Point(440, 640), Point(440, 660),
+ Point(440, 680), Point(440, 700), Point(260, 240), Point(260, 220), Point(260, 200),
+ Point(260, 180), Point(260, 80), Point(260, 60), Point(260, 40), Point(260, 20),
+ Point(260, 0), Point(440, 240), Point(440, 220), Point(440, 200), Point(440, 180),
+ Point(440, 80), Point(440, 60), Point(440, 40), Point(440, 20), Point(440, 0),
+ Point(80, 380), Point(60, 380), Point(40, 380), Point(20, 380), Point(0, 380)]
+
+
+
+
+
 class SnakeGameAI:
 
-    def __init__(self,agents, w=640, h=480,initialBoxCollected=False):
+    def __init__(self,agents, w=720, h=720,initialBoxCollected=False):
         self.w = w
         self.h = h
         self.agents=agents
@@ -48,6 +72,7 @@ class SnakeGameAI:
         
         
         
+       
 
         
         
@@ -86,18 +111,17 @@ class SnakeGameAI:
         
         
         
-        tempy=0
-        tempx=0
+        tempy=12
+        tempx=14
         for i in range(64):
           
-            if tempx*20>140:
+            if tempx*20>420:
                 tempy+=1
-                tempx=0
+                tempx=14
 
             self.boxSlots.append([Point(tempx*BLOCK_SIZE,tempy*BLOCK_SIZE),False])
             # print(self.boxSlots)
             tempx+=1
-        
         
         
         self.nextEmptyBoxSlotIndex=0
@@ -106,15 +130,27 @@ class SnakeGameAI:
         
 
     def _place_food(self):
-        x = random.randint(10, (self.w-BLOCK_SIZE)//BLOCK_SIZE)*BLOCK_SIZE
-        y = random.randint(10, (self.h-BLOCK_SIZE)//BLOCK_SIZE)*BLOCK_SIZE
+        
+        
+        x=420
+        while x<440 and x>280:
+            x=random.randint(10, (self.w-BLOCK_SIZE)//BLOCK_SIZE)*BLOCK_SIZE
+        
+        
+        
+        y=380
+        while y<400 and y>240:
+            y=random.randint(10, (self.h-BLOCK_SIZE)//BLOCK_SIZE)*BLOCK_SIZE
+            
+            
+            
         self.food = Point(x, y)
         
         for head in self.heads:
             self.distanceOfAgents.append(self.calculate_distance(head.x,head.y,self.food.x,self.food.y))
 
         
-        if self.food in self.heads:
+        if self.food in self.heads or self.food in obstaclesCoordinateArray:
             self._place_food()
 
     def play_step(self,whichAgent, action):
@@ -159,8 +195,9 @@ class SnakeGameAI:
                 else:
                     reward=-1
                     self.failed_move_counter+=1
-                    print(self.failed_move_counter)
-                    if(self.failed_move_counter>300):
+                    # print(self.failed_move_counter)
+                    if(self.failed_move_counter>400):
+                        reward=-10
                         game_over=True
         else:
                 currentDistance=self.calculate_distance(self.heads[whichAgent].x,self.heads[whichAgent].y,self.food.x,self.food.y) 
@@ -170,9 +207,10 @@ class SnakeGameAI:
                 else:
                     reward=-1
                     self.failed_move_counter+=1
-                    print(self.failed_move_counter)
+                    # print(self.failed_move_counter)
 
-                    if(self.failed_move_counter>300):
+                    if(self.failed_move_counter>400):
+                        reward=-10
                         game_over=True
 
         
@@ -245,7 +283,8 @@ class SnakeGameAI:
         if tempVar.x > self.w - BLOCK_SIZE or tempVar.x < 0 or tempVar.y > self.h - BLOCK_SIZE or tempVar.y < 0:
             return True
         # hits itself
-        # if head in self.heads[1:]:
+        if tempVar in obstaclesCoordinateArray:
+            return True
         #     return True
 
         return False
@@ -258,7 +297,154 @@ class SnakeGameAI:
         self.display.fill(BLACK)
         x, y, size = 0, 0, 160 
 
-        pygame.draw.rect(self.display, WHITE, (x, y, size, size), 100)
+        pygame.draw.rect(self.display, WHITE, (280, 240, 160, 160), 100)
+        
+        
+        
+        
+        
+        for obstacle in obstaclesCoordinateArray:
+            print(obstacle.x)
+            pygame.draw.rect(self.display,ORANGE,(obstacle.x,obstacle.y,BLOCK_SIZE,BLOCK_SIZE),100)
+
+        
+        
+        # pygame.draw.rect(self.display, WHITE, (400, 400, BLOCK_SIZE, BLOCK_SIZE), 100)
+        
+ #up left right obstacles
+        # pygame.draw.rect(self.display,ORANGE,(260,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(240,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(220,240,BLOCK_SIZE,BLOCK_SIZE),100) 
+        # pygame.draw.rect(self.display,ORANGE,(200,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(180,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        # pygame.draw.rect(self.display,ORANGE,(80,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(60,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(40,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(20,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(0,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+#====================
+        # pygame.draw.rect(self.display,ORANGE,(260,260,BLOCK_SIZE,BLOCK_SIZE),100)
+
+
+        # pygame.draw.rect(self.display,ORANGE,(440,260,BLOCK_SIZE,BLOCK_SIZE),100)
+
+
+
+#Right side upper obstacles
+
+        
+        # pygame.draw.rect(self.display,ORANGE,(440,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(460,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(480,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(500,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(520,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        # pygame.draw.rect(self.display,ORANGE,(620,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(640,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(660,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(680,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(700,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        
+        #left low obstacles
+        
+        
+        # pygame.draw.rect(self.display,ORANGE,(260,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(240,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(220,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(200,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(180,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        # pygame.draw.rect(self.display,ORANGE,(80,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(60,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(40,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(20,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(0,380,BLOCK_SIZE,BLOCK_SIZE),100)
+#====================
+
+
+        # pygame.draw.rect(self.display,ORANGE,(260,360,BLOCK_SIZE,BLOCK_SIZE),100)
+
+        # pygame.draw.rect(self.display,ORANGE,(440,360,BLOCK_SIZE,BLOCK_SIZE),100)
+
+
+        
+        
+
+#Right side low obstacles
+
+        # pygame.draw.rect(self.display,ORANGE,(440,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(460,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(480,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(500,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(520,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        # pygame.draw.rect(self.display,ORANGE,(620,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(640,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(660,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(680,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(700,380,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        
+        
+# Bottom left Obstacles
+
+        # pygame.draw.rect(self.display,ORANGE,(260,400,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,420,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,440,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,460,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        # pygame.draw.rect(self.display,ORANGE,(260,600,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,620,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,640,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,660,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,680,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,700,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        
+        
+#Bottom Right Obstacles
+        
+        # pygame.draw.rect(self.display,ORANGE,(440,400,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,420,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,440,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,460,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        # pygame.draw.rect(self.display,ORANGE,(440,600,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,620,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,640,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,660,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,680,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,700,BLOCK_SIZE,BLOCK_SIZE),100)
+
+
+#Up Left Obstacles
+        # pygame.draw.rect(self.display,ORANGE,(260,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,220,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,200,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,180,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        # pygame.draw.rect(self.display,ORANGE,(260,80,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,60,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,40,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,20,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,0,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(260,700,BLOCK_SIZE,BLOCK_SIZE),100)
+
+#up Right Obstacles
+        # pygame.draw.rect(self.display,ORANGE,(440,240,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,220,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,200,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,180,BLOCK_SIZE,BLOCK_SIZE),100)
+        
+        # pygame.draw.rect(self.display,ORANGE,(440,80,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,60,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,40,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,20,BLOCK_SIZE,BLOCK_SIZE),100)
+        # pygame.draw.rect(self.display,ORANGE,(440,0,BLOCK_SIZE,BLOCK_SIZE),100)
+
         
                 
         for box in self.boxSlots:

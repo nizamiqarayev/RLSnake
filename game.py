@@ -32,26 +32,63 @@ ORANGE=(255,165,0)
 BLOCK_SIZE = 20
 SPEED = 40
 
+# Point(80, 240), Point(60, 240), Point(40, 240), Point(20, 240), Point(0, 240)
+# Point(260, 260), Point(440, 260)
+#  Point(620, 240), Point(640, 240), Point(660, 240), Point(680, 240), Point(700, 240),
+# Point(80, 380), Point(60, 380), Point(40, 380),Point(20, 380), Point(0, 380),
+# Point(620, 380), Point(640, 380), Point(660, 380),Point(680, 380), Point(700, 380),
+# Point(260, 600), Point(260, 620), Point(260, 640), Point(260, 660),Point(260, 680), Point(260, 700),
+# Point(80, 380), Point(60, 380), Point(40, 380), Point(20, 380), Point(0, 380)
+# Point(440, 80), Point(440, 60), Point(440, 40), Point(440, 20), Point(440, 0)
+# Point(260, 80), Point(260, 60), Point(260, 40), Point(260, 20),Point(260, 0),
+# Point(440, 600), Point(440, 620), Point(440, 640), Point(440, 660),Point(440, 680), Point(440, 700),
 
-
-
-obstaclesCoordinateArray=[Point(260, 240), Point(240, 240), Point(220, 240), Point(200, 240), Point(180, 240),Point(80, 240), Point(60, 240), Point(40, 240), Point(20, 240), Point(0, 240),
- Point(260, 260), Point(440, 260), Point(440, 240), Point(460, 240), Point(480, 240),
- Point(500, 240), Point(520, 240), Point(620, 240), Point(640, 240), Point(660, 240),
- Point(680, 240), Point(700, 240), Point(260, 380), Point(240, 380), Point(220, 380),
- Point(200, 380), Point(180, 380), Point(80, 380), Point(60, 380), Point(40, 380),
- Point(20, 380), Point(0, 380), Point(440, 380), Point(460, 380), Point(480, 380),
- Point(500, 380), Point(520, 380), Point(620, 380), Point(640, 380), Point(660, 380),
- Point(680, 380), Point(700, 380), Point(260, 400), Point(260, 420), Point(260, 440),
- Point(260, 460), Point(260, 600), Point(260, 620), Point(260, 640), Point(260, 660),
- Point(260, 680), Point(260, 700), Point(440, 400), Point(440, 420), Point(440, 440),
- Point(440, 460), Point(440, 600), Point(440, 620), Point(440, 640), Point(440, 660),
- Point(440, 680), Point(440, 700), Point(260, 240), Point(260, 220), Point(260, 200),
- Point(260, 180), Point(260, 80), Point(260, 60), Point(260, 40), Point(260, 20),
- Point(260, 0), Point(440, 240), Point(440, 220), Point(440, 200), Point(440, 180),
- Point(440, 80), Point(440, 60), Point(440, 40), Point(440, 20), Point(440, 0),
- Point(80, 380), Point(60, 380), Point(40, 380), Point(20, 380), Point(0, 380)]
-
+obstaclesCoordinateArray=[Point(260, 240), Point(240, 240), Point(220, 240), Point(200, 240), Point(180, 240),
+ Point(440, 240), Point(460, 240), Point(480, 240),
+ Point(500, 240), Point(520, 240), Point(260, 380), Point(240, 380), Point(220, 380),
+ Point(200, 380), Point(180, 380),
+ Point(440, 380), Point(460, 380), Point(480, 380),
+ Point(500, 380), Point(520, 380),  Point(260, 400), Point(260, 420), Point(260, 440),
+ Point(260, 460),  Point(440, 400), Point(440, 420), Point(440, 440),
+ Point(440, 460),  Point(260, 240), Point(260, 220), Point(260, 200),
+ Point(260, 180),  Point(440, 240), Point(440, 220), Point(440, 200), Point(440, 180),
+ 
+ Point(0, 0), Point(20, 0), Point(40, 0), Point(60, 0), Point(80, 0),
+ Point(100, 0), Point(120, 0), Point(140, 0), Point(160, 0), Point(180, 0),
+ Point(200, 0), Point(220, 0), Point(240, 0), Point(260, 0), Point(280, 0),
+ Point(300, 0), Point(320, 0), Point(340, 0), Point(360, 0), Point(380, 0),
+ Point(400, 0), Point(420, 0), Point(440, 0), Point(460, 0), Point(480, 0),
+ Point(500, 0), Point(520, 0), Point(540, 0), Point(560, 0), Point(580, 0),
+ Point(600, 0), Point(620, 0), Point(640, 0), Point(660, 0), Point(680, 0),
+ Point(700, 0),
+ 
+ 
+ Point(0, 20), Point(0, 40), Point(0, 60), Point(0, 80),
+ Point(0, 100), Point(0, 120), Point(0, 140), Point(0, 160), Point(0, 180),
+ Point(0, 200), Point(0, 220), Point(0, 240), Point(0, 260), Point(0, 280),
+ Point(0, 300), Point(0, 320), Point(0, 340), Point(0, 360), Point(0, 380),
+ Point(0, 400), Point(0, 420), Point(0, 440), Point(0, 460), Point(0, 480),
+ Point(0, 500), Point(0, 520), Point(0, 540), Point(0, 560), Point(0, 580),
+ Point(0, 600), Point(0, 620), Point(0, 640), Point(0, 660), Point(0, 680),
+ Point(0, 700),
+ 
+ Point(700, 20), Point(700, 40), Point(700, 60), Point(700, 80),
+ Point(700, 100), Point(700, 120), Point(700, 140), Point(700, 160), Point(700, 180),
+ Point(700, 200), Point(700, 220), Point(700, 240), Point(700, 260), Point(700, 280),
+ Point(700, 300), Point(700, 320), Point(700, 340), Point(700, 360), Point(700, 380),
+ Point(700, 400), Point(700, 420), Point(700, 440), Point(700, 460), Point(700, 480),
+ Point(700, 500), Point(700, 520), Point(700, 540), Point(700, 560), Point(700, 580),
+ Point(700, 600), Point(700, 620), Point(700, 640), Point(700, 660), Point(700, 680),
+ Point(700, 700),
+ 
+ Point(20, 700), Point(40, 700), Point(60, 700), Point(80, 700),
+ Point(100, 700), Point(120, 700), Point(140, 700), Point(160, 700), Point(180, 700),
+ Point(200, 700), Point(220, 700), Point(240, 700), Point(260, 700), Point(280, 700),
+ Point(300, 700), Point(320, 700), Point(340, 700), Point(360, 700), Point(380, 700),
+ Point(400, 700), Point(420, 700), Point(440, 700), Point(460, 700), Point(480, 700),
+ Point(500, 700), Point(520, 700), Point(540, 700), Point(560, 700), Point(580, 700),
+ Point(600, 700), Point(620, 700), Point(640, 700), Point(660, 700), Point(680, 700),
+ ]
 
 
 
@@ -304,7 +341,7 @@ class SnakeGameAI:
         
         
         for obstacle in obstaclesCoordinateArray:
-            print(obstacle.x)
+            # print(obstacle.x)
             pygame.draw.rect(self.display,ORANGE,(obstacle.x,obstacle.y,BLOCK_SIZE,BLOCK_SIZE),100)
 
         

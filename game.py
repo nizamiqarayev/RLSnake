@@ -35,17 +35,6 @@ ORANGE=(255,165,0)
 BLOCK_SIZE = 20
 SPEED = 40
 
-# Point(80, 240), Point(60, 240), Point(40, 240), Point(20, 240), Point(0, 240)
-# Point(260, 260), Point(440, 260)
-#  Point(620, 240), Point(640, 240), Point(660, 240), Point(680, 240), Point(700, 240),
-# Point(80, 380), Point(60, 380), Point(40, 380),Point(20, 380), Point(0, 380),
-# Point(620, 380), Point(640, 380), Point(660, 380),Point(680, 380), Point(700, 380),
-# Point(260, 600), Point(260, 620), Point(260, 640), Point(260, 660),Point(260, 680), Point(260, 700),
-# Point(80, 380), Point(60, 380), Point(40, 380), Point(20, 380), Point(0, 380)
-# Point(440, 80), Point(440, 60), Point(440, 40), Point(440, 20), Point(440, 0)
-# Point(260, 80), Point(260, 60), Point(260, 40), Point(260, 20),Point(260, 0),
-# Point(440, 600), Point(440, 620), Point(440, 640), Point(440, 660),Point(440, 680), Point(440, 700),
-
 obstaclesCoordinateArray=[Point(260, 240), Point(240, 240), Point(220, 240), Point(200, 240), Point(180, 240),
  Point(440, 240), Point(460, 240), Point(480, 240),
  Point(500, 240), Point(520, 240), Point(260, 380), Point(240, 380), Point(220, 380),
@@ -93,9 +82,6 @@ obstaclesCoordinateArray=[Point(260, 240), Point(240, 240), Point(220, 240), Poi
  Point(600, 700), Point(620, 700), Point(640, 700), Point(660, 700), Point(680, 700),
  ]
 
-
-
-
 class SnakeGameAI:
 
     def __init__(self,agents, w=720, h=720,initialBoxCollected=False):
@@ -109,15 +95,6 @@ class SnakeGameAI:
         pygame.display.set_caption('Snake')
         self.clock = pygame.time.Clock()
         self.reset()
-        
-        
-        
-       
-
-        
-        
-        
-        
 
     def reset(self):
         # init game state
@@ -128,18 +105,9 @@ class SnakeGameAI:
 
         self.heads = []
         for i in self.agents:
-            self.heads.append(Point(self.w/2, self.h/2))
-        # self.snake = [self.head,
-        # # Point(self.head.x-BLOCK_SIZE, self.head.y),
-        # # Point(self.head.x-(2*BLOCK_SIZE), self.head.y)
-        # ]
-        
+            self.heads.append(Point(self.w/2, self.h/2))  
         self.collectedBoxesLocation=[]
-        
-        
-      
-        
-        
+   
         self.score = 0
         
         self.boxCollected=[False,None]
@@ -165,9 +133,6 @@ class SnakeGameAI:
         
         
         self.nextEmptyBoxSlotIndex=0
-        
-        
-        
 
     def _place_food(self):
         
@@ -230,10 +195,10 @@ class SnakeGameAI:
         if(self.boxCollected[0]):
                 currentDistance=self.calculate_distance(self.heads[whichAgent].x,self.heads[whichAgent].y,self.boxSlots[self.nextEmptyBoxSlotIndex][0].x,self.boxSlots[self.nextEmptyBoxSlotIndex][0].y) 
                 if currentDistance<self.distanceOfAgents[whichAgent]:
-                    reward=1
+                    reward+=5
                     self.distanceOfAgents[whichAgent]=currentDistance
                 else:
-                    reward=-1
+                    reward-=5
                     self.failed_move_counter+=1
                     # print(self.failed_move_counter)
                     if(self.failed_move_counter>400):
@@ -241,10 +206,10 @@ class SnakeGameAI:
         else:
                 currentDistance=self.calculate_distance(self.heads[whichAgent].x,self.heads[whichAgent].y,self.food.x,self.food.y) 
                 if currentDistance<self.distanceOfAgents[whichAgent]:
-                    reward=1
+                    reward=5
                     self.distanceOfAgents[whichAgent]=currentDistance
                 else:
-                    reward=-1
+                    reward=-5
                     self.failed_move_counter+=1
                     # print(self.failed_move_counter)
 
@@ -269,7 +234,7 @@ class SnakeGameAI:
 
                 self.boxCollected[0]=True
                 self.boxCollected[1]=index
-                reward=5
+                reward+=10
                 self.score += 1
 
             
@@ -281,36 +246,15 @@ class SnakeGameAI:
 
                      boxSlotLocation[1]=True
                      self.score += 5
-                     reward= 10
+                     reward+= 20
                      self.boxCollected[0]=False
                      self.boxCollected[1]=None
                  
                    
 
-            #  if(self.display.get_at((int(i.x), int(i.y)))==WHITE and self.boxCollected[0] and index==self.boxCollected[1]):
-            
-            
-            
-            
-            #  if i==self.boxSlots[self.nextEmptyBoxSlotIndex][0] and :
-            #      # pygame.draw.rect(self.display, RED, pygame.Rect(self.head.x, self.head.y, BLOCK_SIZE, BLOCK_SIZE))
-            #      self.score += 5
-            #      reward += 10
-            #      self.boxCollected[0]=False
-            #      self.boxCollected[1]=None
-            #      self.boxSlots[self.nextEmptyBoxSlotIndex][1]=True
-                 
-                #  self.collectedBoxesLocation.append(Point(i.x, i.y))
-            #  else:
-            #      self.snake.pop()
-            
-       
-        # if(self.boxCollected and self.head==)
-
-        # 5. update ui and clock
+    
         self._update_ui()
         self.clock.tick(SPEED)
-        # 6. return game over and score
         return reward, game_over, self.score
 
     def is_collision(self, pt=None):
@@ -334,51 +278,22 @@ class SnakeGameAI:
     def _update_ui(self):
         self.display.fill(PEACH)
         x, y, size = 0, 0, 160 
-
         pygame.draw.rect(self.display, GRAY, (280, 240, 160, 160), 100)
-        
-        
-        
-        
-        
         for obstacle in obstaclesCoordinateArray:
             # print(obstacle.x)
             pygame.draw.rect(self.display,ORANGE,(obstacle.x,obstacle.y,BLOCK_SIZE,BLOCK_SIZE),100)
-
         
-        
-
-
-        
-                
         for box in self.boxSlots:
             pygame.draw.rect(self.display, GREEN if box[1] else GRAY, pygame.Rect(
                 box[0].x, box[0].y, BLOCK_SIZE, BLOCK_SIZE))
         for index,pt in enumerate(self.heads):
-            # print('===============')
-            
-            # print(self.boxCollected[1])
-            # print(pt)
-            # print('===============')
-
-            # if(self.boxCollected):
-            #     pygame.draw.rect(self.display, RED, pygame.Rect(
-            #     pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
             pygame.draw.rect(self.display, RED if self.boxCollected[0] and self.boxCollected[1]==index else BLUE1, pygame.Rect(
                 pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            # pygame.draw.rect(self.display, BLUE2,
-            # pygame.Rect(pt.x+4, pt.y+4, 12, 12))
             
-        # for box in self.collectedBoxesLocation:
-        #     pygame.draw.rect(self.display, RED, pygame.Rect(
-        #         box.x, box.y, BLOCK_SIZE, BLOCK_SIZE))
-
-
         if(self.boxCollected[0]==False):
             pygame.draw.rect(self.display, RED, pygame.Rect(
             self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
-
-      
+            
         text = font.render("Score: " + str(self.score), True, WHITE)
         self.display.blit(text, [0, 0])
         pygame.display.flip()

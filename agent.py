@@ -3,8 +3,12 @@ import random
 import numpy as np
 from collections import deque
 from game import SnakeGameAI, Direction, Point
-from model import Linear_QNet, QTrainer
 from helper import plot
+import torch.nn.functional as F
+
+
+from PPOModel import PPOPolicy, PPOValue
+from PpoTrainer import PPOTrainer
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
@@ -13,15 +17,40 @@ LR = 0.001
 
 class Agent:
 
-    def __init__(self,index):
-        self.index=index
-        
+    def __init__(self, index):
+        self.index = index
         self.n_games = 0
-        self.epsilon = 0  # randomness
-        self.gamma = 0.9  # discount rate
-        self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
-        self.model = Linear_QNet(11, 256, 3)
-        self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
+        self.memory = deque(maxlen=MAX_MEMORY)
+        
+        self.epsilon = 0 
+
+        # PPO models
+        self.policy = PPOPolicy(11, 256, 3)
+        self.value = PPOValue(11, 256)
+        self.trainer = PPOTrainer(self.policy, self.value, lr=LR)
+        
+        self.states = []
+        self.actions = []
+        self.old_log_probs = []
+        self.rewards = []
+        self.next_states = []
+        self.dones = []
+        
+        
+    def store_transition(self, state, action, reward, next_state, done):
+        self.states.append(state)
+        self.actions.append(action)
+        self.rewards.append(reward)
+        self.next_states.append(next_state)
+        self.dones.append(done)
+        
+    def clear_memory(self):
+        self.states = []
+        self.actions = []
+        self.old_log_probs = []
+        self.rewards = []
+        self.next_states = []
+        self.dones = []
 
     def get_state(self, game):
 
@@ -71,39 +100,40 @@ class Agent:
         
         return np.array(state, dtype=int)
 
-    def remember(self, state, action, reward, next_state, done):
-        # popleft if MAX_MEMORY is reached
-        self.memory.append((state, action, reward, next_state, done))
 
-    def train_long_memory(self):
-        if len(self.memory) > BATCH_SIZE:
-            mini_sample = random.sample(
-                self.memory, BATCH_SIZE)  # list of tuples
-        else:
-            mini_sample = self.memory
-
-        states, actions, rewards, next_states, dones = zip(*mini_sample)
-        self.trainer.train_step(states, actions, rewards, next_states, dones)
-        # for state, action, reward, nexrt_state, done in mini_sample:
-        #    self.trainer.train_step(state, action, reward, next_state, done)
-
-    def train_short_memory(self, state, action, reward, next_state, done):
-        self.trainer.train_step(state, action, reward, next_state, done)
 
     def get_action(self, state):
-        # random moves: tradeoff exploration / exploitation
+        
+        gameMove = [0, 0, 0]
+        state = torch.tensor(state, dtype=torch.float)
+        with torch.no_grad():
+            action_probs = self.policy(state)
+                
+        action_dist = torch.distributions.Categorical(action_probs)
         self.epsilon = 80 - self.n_games
-        final_move = [0, 0, 0]
+   
         if random.randint(0, 200) < self.epsilon:
             move = random.randint(0, 2)
-            final_move[move] = 1
-        else:
-            state0 = torch.tensor(state, dtype=torch.float)
-            prediction = self.model(state0)
-            move = torch.argmax(prediction).item()
-            final_move[move] = 1
+            newAction = torch.tensor(move, dtype=torch.float)
 
-        return final_move
+            gameMove[move]=1
+            log_prob = action_dist.log_prob(newAction)
+            
+            self.old_log_probs.append(log_prob)
+        else:
+            newAction = action_dist.sample()
+            log_prob = action_dist.log_prob(newAction)
+            self.old_log_probs.append(log_prob)
+            
+            move = newAction.item()
+            gameMove[move]=1
+            print(gameMove)
+
+
+        return newAction, gameMove
+
+        
+        
 
 
 def train():
@@ -125,55 +155,63 @@ def train():
         # get old state
         state_old1 = agent1.get_state(game)
         state_old2=agent2.get_state(game)
-        
 
         # get move
-        final_move1 = agent1.get_action(state_old1)
-        final_move2=agent2.get_action(state_old2)
-
-        # perform move and get new state
-        reward1, done1, score1 = game.play_step(0,final_move1)
+        final_move1,gameMove1 = agent1.get_action(state_old1)
+        final_move2,gameMove2=agent2.get_action(state_old2)
         
-        reward2, done2, score2 = game.play_step(1,final_move2)
+   
+        # perform move and get new state
+        reward1, done1, score1 = game.play_step(0,gameMove1)
+        
+        reward2, done2, score2 = game.play_step(1,gameMove2)
+        
+
+        
+        print("=========================================")
+        print(final_move1.item())
+        print(reward1)
+
+        print(final_move2.item())
+        print(reward2)
+
+        print("=========================================")
 
         
         state_new1 = agent1.get_state(game)
         state_new2 = agent2.get_state(game)
 
-
-        # train short memory
-        agent1.train_short_memory(
-            state_old1, final_move1, reward1, state_new1, done1)
-
-        # remember
-        agent1.remember(state_old1, final_move1, reward1, state_new1, done1)
-        
-        agent2.train_short_memory(
-            state_old2, final_move2, reward2, state_new2, done2)
-
-        # remember
-        agent2.remember(state_old2, final_move2, reward2, state_new2, done2)
-
+        agent1.store_transition(state_old1, final_move1, reward1, state_new1, done1)
+        agent2.store_transition(state_old2, final_move2,  reward2, state_new2, done2)
 
 
 
 
         if done1 or done2:
             # train long memory, plot result
+            
+            agent1.trainer.train_step(agent1.states, agent1.actions, agent1.old_log_probs, agent1.rewards,   agent1.next_states, agent1.dones)
+            agent2.trainer.train_step(agent2.states, agent2.actions, agent2.old_log_probs, agent2.rewards,   agent2.next_states, agent2.dones)
+
+
+
+            
             game.reset()
+            
+            agent1.clear_memory()
+            agent2.clear_memory()
+
             agent1.n_games += 1
-            agent1.train_long_memory()
             
             agent2.n_games += 1
-            agent2.train_long_memory()
+            
+            
 
             if score1 > record1:
                 record1 = score1
-                agent1.model.save()
                 
             if score2 > record2:
                 record2 = score2
-                agent2.model.save()
             print("==================")
             print('Game', agent1.n_games, 'Score', score1, 'Record:', record1)
             print('Game', agent1.n_games, 'Score', score1, 'Record:', record1)
@@ -194,24 +232,7 @@ def train():
             
             
             
-        # if done2:
-        #     # train long memory, plot result
-        #     game.reset()
-        #     agent2.n_games += 1
-        #     agent2.train_long_memory()
-
-        #     if score2 > record2:
-        #         record2 = score2
-        #         agent2.model.save()
-
-        #     print('Game', agent2.n_games, 'Score', score2, 'Record:', record2)
-
-        #     plot_scores2.append(score1)
-        #     total_score2 += score2
-        #     mean_score2 = total_score2 / agent2.n_games
-        #     plot_mean_scores2.append(mean_score2)
-        #     plot(plot_scores2, plot_mean_scores2)
-
+   
 
 if __name__ == '__main__':
     train()
